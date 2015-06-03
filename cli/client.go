@@ -47,9 +47,12 @@ func ClientCli(args []string) {
 		log.Fatal(err)
 	}
 
-	// We aren't capturing the output nor forwarding signals here.
-	// cr.Resolve used to return a client, not it returns a connection.. hm
-	if err = Run(conn, quantum.NewRequest(requestType, requestData), defaultOutput); err != nil {
+	request, err := NewRequest(requestType, requestData)
+	if err != nil {
+		log.Fatalf("Error creating request: %s", err)
+	}
+
+	if err = Run(conn, request, defaultOutput); err != nil {
 		log.Fatalf("quantum client exited with error:\n\t%v\n", err.Error())
 	} else {
 		log.Println("quantum client exited")

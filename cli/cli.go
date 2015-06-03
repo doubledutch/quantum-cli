@@ -1,6 +1,12 @@
 package cli
 
-import "fmt"
+import (
+	"fmt"
+	"io/ioutil"
+	"os"
+
+	"github.com/doubledutch/quantum"
+)
 
 // CLI wraps the CLIs defined in quantum
 type CLI struct {
@@ -17,6 +23,27 @@ func New() *CLI {
 	cmds["client"] = ClientCli
 
 	return &CLI{cmds: cmds}
+}
+
+// NewRequest creates a request by treating requestData as file and falling back
+// to treating it as a string.
+func NewRequest(requestType, requestData string) (r quantum.Request, err error) {
+	if _, err := os.Stat(requestData); err == nil {
+		f, err := os.Open(requestData)
+		if err != nil {
+			return r, err
+		}
+		defer f.Close()
+
+		b, err := ioutil.ReadAll(f)
+		if err != nil {
+			return r, err
+		}
+
+		requestData = string(b)
+	}
+
+	return quantum.NewRequest(requestType, requestData), nil
 }
 
 // Run runs a CLI with specified arguments
