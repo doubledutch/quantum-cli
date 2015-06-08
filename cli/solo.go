@@ -3,6 +3,7 @@ package cli
 import (
 	"flag"
 	"log"
+	"time"
 
 	"github.com/doubledutch/lager"
 	"github.com/doubledutch/mux/gob"
@@ -33,17 +34,24 @@ func SoloCli(args []string) {
 		Pool:  new(gob.Pool),
 	}
 
+	connConfig := &quantum.ConnConfig{
+		Timeout: 100 * time.Millisecond,
+		Config:  config,
+	}
+
 	log.Println("Running quantum solo")
 
-	client := client.New(&client.Config{
-		Config: config,
-	})
+	client := client.New(connConfig)
 	conn, err := client.Dial(agent + port)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = Run(conn, quantum.NewRequest(requestType, requestData), defaultOutput)
+	request, err := NewRequest(requestType, requestData)
+	if err != nil {
+		log.Fatalf("Error creating request: %s", err)
+	}
+	err = Run(conn, request, defaultOutput)
 	if err != nil {
 		log.Fatalf("quantum solo exited with error:\n\t%v\n", err.Error())
 	} else {
