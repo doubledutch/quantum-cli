@@ -11,16 +11,16 @@ import (
 )
 
 // ClientCli defines a command to run quantum in client mode, making use of
-// quantum Server. By specifing the type of the request, and optionally the
-// host, quantum Server will return JobRecord(s) for available agents
-// to communicate with to run the job.
+// Quantum Resolver. By specifing the type of the request, and optionally the
+// hostname, Quantum Resolver will return the addresses and ports of available agents
+// to communicate with to run jobs.
 func ClientCli(args []string) {
 	fs := flag.NewFlagSet("quantum client", flag.ExitOnError)
-	fs.StringVar(&serverAddr, "server", "", "quantum server to register with")
-	fs.StringVar(&agent, "agent", "", "name of agent")
-	fs.StringVar(&requestType, "t", "", "type of request")
-	fs.StringVar(&requestData, "d", "{}", "request data json")
-	fs.StringVar(&logLevels, "log", defaultLogLevel, "log levels")
+	fs.StringVar(&serverAddr, "server", "", "Address of resolver")
+	fs.StringVar(&agent, "agent", "", "Hostname of agent to resolve")
+	fs.StringVar(&requestType, "t", "", "Type of request")
+	fs.StringVar(&requestData, "d", "{}", "Request data json")
+	fs.StringVar(&logLevels, "log", defaultLogLevel, "Log levels")
 	fs.Parse(args)
 
 	log.Printf("Running quantum client, resolving with %s\n", serverAddr)
