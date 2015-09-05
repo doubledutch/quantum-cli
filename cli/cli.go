@@ -21,6 +21,7 @@ func New() *CLI {
 	cmds := make(map[string]Func)
 	cmds["solo"] = SoloCli
 	cmds["client"] = ClientCli
+	cmds["version"] = VersionCli
 
 	return &CLI{cmds: cmds}
 }
@@ -66,7 +67,8 @@ func (c *CLI) Run(args []string) {
 
 // Usage is the usage for the CLI
 func (c *CLI) Usage() string {
-	return "quantum usage: \n" +
-		"\tclient:\trun in client mode\n" +
-		"\tsolo:\trun in stand alone mode"
+	return "quantum-cli usage: \n" +
+		"\tsolo:\t\tRun in stand alone mode\n" +
+		"\tclient:\t\tRun in client mode\n" +
+		"\tversion:\tPrints version of quantum-cli"
 }

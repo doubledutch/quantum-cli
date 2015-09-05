@@ -12,15 +12,15 @@ import (
 )
 
 // SoloCli defines a command to run quantum in stand alone, or solo, mode.
-// Solo mode allows the client to send a request directly to an agent
-// if you know the agent addr and port.
+// Solo mode allows the user to send a request directly to a Quantum Agent
+// when they know the agent address and port.
 func SoloCli(args []string) {
 	fs := flag.NewFlagSet("quantum solo", flag.ExitOnError)
-	fs.StringVar(&agent, "agent", "", "name of agent")
-	fs.StringVar(&port, "p", clientPort, "agent port")
-	fs.StringVar(&requestType, "t", defaultRequestType, "type of request")
-	fs.StringVar(&requestData, "d", "{}", "request data json")
-	fs.StringVar(&logLevels, "log", defaultLogLevel, "log level")
+	fs.StringVar(&agent, "agent", "", "Resolvable name or address of agent")
+	fs.StringVar(&port, "p", clientPort, "Agent port")
+	fs.StringVar(&requestType, "t", defaultRequestType, "Type of request")
+	fs.StringVar(&requestData, "d", "{}", "Request data json")
+	fs.StringVar(&logLevels, "log", defaultLogLevel, "Log levels")
 	fs.Parse(args)
 
 	// We need to move this
