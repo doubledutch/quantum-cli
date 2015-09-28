@@ -3,9 +3,8 @@ package cli
 import (
 	"flag"
 	"log"
+	"strings"
 
-	"github.com/doubledutch/lager"
-	"github.com/doubledutch/mux/gob"
 	"github.com/doubledutch/quantum"
 	"github.com/doubledutch/quantum/consul"
 )
@@ -16,29 +15,29 @@ import (
 // to communicate with to run jobs.
 func ClientCli(args []string) {
 	fs := flag.NewFlagSet("quantum client", flag.ExitOnError)
-	fs.StringVar(&serverAddr, "server", "", "Address of resolver")
-	fs.StringVar(&agent, "agent", "", "Hostname of agent to resolve")
-	fs.StringVar(&requestType, "t", "", "Type of request")
-	fs.StringVar(&requestData, "d", "{}", "Request data json")
-	fs.StringVar(&logLevels, "log", defaultLogLevel, "Log levels")
+	fs.StringVar(&server, "server", "", "type of the server")
+	commonFlags(fs)
 	fs.Parse(args)
 
-	log.Printf("Running quantum client, resolving with %s\n", serverAddr)
+	log.Printf("Running quantum client, resolving with %s\n", server)
 
-	lager := lager.NewLogLager(&lager.LogConfig{
-		Levels: lager.LevelsFromString(logLevels),
-		Output: defaultOutput,
-	})
-
-	config := &quantum.Config{
-		Lager: lager,
-		Pool:  new(gob.Pool),
+	lgr := lgr()
+	connConfig, err := config(poolType, certFile, keyFile, caFile, lgr)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	cr := consul.NewClientResolver(quantum.ClientResolverConfig{
-		Server: serverAddr,
-		Config: config,
-	})
+	var cr quantum.ClientResolver
+	switch strings.ToLower(server) {
+	case "consul":
+		cr = consul.NewClientResolverFromEnv(connConfig)
+	default:
+	}
+
+	if cr == nil {
+		log.Fatalf("Invalid Client Resolver: %s", server)
+	}
+
 	conn, err := cr.Resolve(quantum.ResolveRequest{
 		Agent: agent,
 		Type:  requestType,

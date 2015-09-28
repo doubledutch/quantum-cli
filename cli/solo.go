@@ -3,11 +3,7 @@ package cli
 import (
 	"flag"
 	"log"
-	"time"
 
-	"github.com/doubledutch/lager"
-	"github.com/doubledutch/mux/gob"
-	"github.com/doubledutch/quantum"
 	"github.com/doubledutch/quantum/client"
 )
 
@@ -16,27 +12,14 @@ import (
 // when they know the agent address and port.
 func SoloCli(args []string) {
 	fs := flag.NewFlagSet("quantum solo", flag.ExitOnError)
-	fs.StringVar(&agent, "agent", "", "Resolvable name or address of agent")
 	fs.StringVar(&port, "p", clientPort, "Agent port")
-	fs.StringVar(&requestType, "t", defaultRequestType, "Type of request")
-	fs.StringVar(&requestData, "d", "{}", "Request data json")
-	fs.StringVar(&logLevels, "log", defaultLogLevel, "Log levels")
+	commonFlags(fs)
 	fs.Parse(args)
 
-	// We need to move this
-	lager := lager.NewLogLager(&lager.LogConfig{
-		Levels: lager.LevelsFromString(logLevels),
-		Output: defaultOutput,
-	})
-
-	config := &quantum.Config{
-		Lager: lager,
-		Pool:  new(gob.Pool),
-	}
-
-	connConfig := &quantum.ConnConfig{
-		Timeout: 100 * time.Millisecond,
-		Config:  config,
+	lgr := lgr()
+	connConfig, err := config(poolType, certFile, keyFile, caFile, lgr)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	log.Println("Running quantum solo")
