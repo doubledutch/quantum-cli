@@ -12,15 +12,14 @@ import (
 // Run runs a client
 func Run(conn quantum.ClientConn, request quantum.Request, w io.Writer) error {
 	// Used to ensure that all lines are captured
-	doneCh := make(chan interface{}, 1)
-	defer close(doneCh)
+	doneCh := make(chan interface{})
 
 	go func() {
 		// Print lines received on outCh
 		for line := range conn.Logs() {
 			fmt.Fprint(w, line)
 		}
-		doneCh <- struct{}{}
+		close(doneCh)
 	}()
 
 	signal.Notify(conn.Signals(),
